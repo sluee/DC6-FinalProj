@@ -1,0 +1,227 @@
+<script setup>
+    import SideBarLayout from '@/Layouts/SideBarLayout.vue';
+    import { ref } from 'vue';
+    import { Link , Head, usePage} from '@inertiajs/vue3';
+    import { useForm } from '@inertiajs/vue3';
+    // import Multiselect from 'vue-multiselect'
+    // const { data } = usePage().props;
+    import {inject} from 'vue'
+const themeMode = inject('themeMode')
+    let form = useForm({
+        lastName: '',
+        firstName:'',
+       
+        email:'',
+        password:'',
+        password_confirmation:'',
+        status:'',
+       
+        type: '',
+        role: '',
+        pos_id: '',
+        address:'',
+        phone: '',
+
+    })
+
+    let props = defineProps({
+        roles:Array,
+        employee:Object,
+        positions: Object
+
+    })
+
+    function toggleFields(){
+        if (form.type !== 'employee') {
+        form.position = '';
+
+      }
+    }
+
+    // const submit = () =>{
+    //     form.post('/users')
+       
+    // }
+    const isLoading = ref(false);
+
+    const submit = async () => {
+        isLoading.value = true;
+        form.post('/users')
+        setTimeout(() => {
+            isLoading.value = false;
+        }, 5000);
+    };
+
+</script>
+
+<template>
+    <Head title="Create User"/>
+    <SideBarLayout>
+        <template #header>
+            <h2 class="font-semibold text-xl leading-tight">Create User</h2>
+        </template>
+        <div>
+            <div class="w-full mt-10 mx-auto px-4 " :class="themeMode">
+                <form @submit.prevent="submit">
+                    <div class="space-y-6">
+                        <div class="block pl-12 font-semibold text-xl self-start">
+                            <h1 class="leading-relaxed">User Details Form</h1>
+                            <hr>
+                          </div>
+                      <div class="border-b border-gray-900/10 pb-12">
+
+                        <div class=" px-12 py-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-3 mx-auto">
+                          <div class="sm:col-span-1">
+                            <label for="firstName" class="block text-sm font-medium leading-6 ">First name</label>
+                            <div class="mt-2">
+                              <input type="text" v-model="form.firstName" name="firstName" id="firstName" autocomplete="firstName" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.firstName">{{ form.errors.firstName }}</div>
+                            </div>
+                          </div>
+                          
+                          <div class="sm:col-span-1">
+                            <label for="lastName" class="block text-sm font-medium leading-6 ">Last name</label>
+                            <div class="mt-2">
+                              <input type="text" v-model="form.lastName" name="lastName" id="lastName" autocomplete="family-name" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.lastName">{{ form.errors.lastName }}</div>
+                            </div>
+                          </div>
+                          <div class="m:col-span-1">
+                            <label for="roles" class="block text-sm font-medium leading-6 ">Roles</label>
+                            <div class="mt-2">
+                              <select id="role" v-model="form.role" name="role" autocomplete="role" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                <option selected disabled   >Select Role</option>
+                                <option v-for="role in roles" :key="role.id" :value="role.name">{{ role.name }}</option>
+                                <!-- <option value="Role">Patient</option> -->
+                              </select>
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.role">{{ form.errors.role }}</div>
+                            </div>
+                          </div>
+
+                          <div class="sm:col-span-2">
+                            <label for="phone" class="block text-sm font-medium leading-6 ">Contact No</label>
+                            <div class="mt-2">
+                              <input id="phone" v-model="form.phone" name="phone" type="number" autocomplete="phone" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.phone">{{ form.errors.phone }}</div>
+                            </div>
+                          </div>
+
+                          <div class="m:col-span-1">
+                            <label for="type" class="block text-sm font-medium leading-6 ">Type</label>
+                            <div class="mt-2">
+                              <select id="type" v-model="form.type" name="type" @change="toggleFields" autocomplete="type" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                <option selected disabled>Select Type</option>
+                               
+                                <option value="employee">Employee</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.type">{{ form.errors.type }}</div>
+                            </div>
+                          </div>
+                          <div class="m:col-span-1" v-if="form.type === 'employee'">
+                            <label for="type" class="block text-sm font-medium leading-6 ">Position</label>
+                            <div class="mt-2">
+                              <select id="pos_id" v-model="form.pos_id" name="position"  autocomplete="position" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                <option selected disabled>Select position</option>
+                                <option v-for="position in positions" :key="position.id" :value="position.id">{{ position.name }}</option>
+                              </select>
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.pos_id">{{ form.errors.pos_id }}</div>
+                            </div>
+                          </div>
+
+                          <div class="sm:col-span-1">
+                            <label for="address" class="block text-sm font-medium leading-6 ">Address</label>
+                            <div class="mt-2">
+                              <input id="address" v-model="form.address" name="address" type="text" autocomplete="address" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.address">{{ form.errors.address }}</div>
+                            </div>
+                          </div>
+
+                          <div class="sm:col-span-1">
+                            <label for="email" class="block text-sm font-medium leading-6 ">Email address</label>
+                            <div class="mt-2">
+                              <input id="email" v-model="form.email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.email">{{ form.errors.email }}</div>
+                            </div>
+                          </div>
+
+                          <div class="sm:col-span-1 ">
+                            <label for="password" class="block text-sm font-medium leading-6 ">Password</label>
+                            <div class="mt-2">
+                              <input type="password" v-model="form.password" name="password" id="password"  class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.password">{{ form.errors.password }}</div>
+                            </div>
+                          </div>
+
+
+                          <div class="sm:col-span-1">
+                            <label for="password_confirmation" class="block text-sm font-medium leading-6 ">Confirm Password</label>
+                            <div class="mt-2">
+                              <input type="password" v-model="form.password_confirmation" name="password_confirmation" id="password_confirmation" class="block w-full rounded-md border-0 py-1.5  shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                              <div class="text-sm text-red-500 italic" v-if="form.errors.gender">{{ form.errors.password_confirmation }}</div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mt-6 flex items-center justify-end gap-x-6 mb-3">
+                      <button type="button" class="text-sm font-semibold leading-6 ">Cancel</button>
+                      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-black shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
+                    </div>
+                  </form>
+            </div>
+            
+        </div>
+    </SideBarLayout>
+
+</template>
+
+
+<style scoped>
+.spinner {
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+   }
+   
+   .dot1, .dot2, .dot3 {
+    width: 15px;
+    height: 15px;
+    border: double;
+    border-color: white;
+    border-radius: 50%;
+    margin: 10px;
+   }
+   
+   .dot1 {
+    animation: jump765 1.6s -0.32s linear infinite;
+    background: #2495ff;
+   }
+   
+   .dot2 {
+    animation: jump765 1.6s -0.16s linear infinite;
+    background: #2495ff;
+   }
+   
+   .dot3 {
+    animation: jump765 1.6s linear infinite;
+    background: #2495ff;
+   }
+   
+   @keyframes jump765 {
+    0%, 80%, 100% {
+     -webkit-transform: scale(0);
+     transform: scale(0);
+    }
+   
+    40% {
+     -webkit-transform: scale(2.0);
+     transform: scale(2.0);
+    }
+   }
+   
+   
+</style>
